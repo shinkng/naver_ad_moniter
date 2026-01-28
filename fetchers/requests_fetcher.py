@@ -23,28 +23,30 @@ def fetch_page(keyword: str) -> BeautifulSoup:
         url,
         params=params,
         headers=get_random_headers(),
-        timeout=7,   # 크론 기준 살짝 여유
+        timeout=7,
     )
     response.raise_for_status()
 
     return BeautifulSoup(response.text, "html.parser")
 
 
-def scan(keyword: str) -> list[PowerLinkResult]:
-    results: list[PowerLinkResult] = []
+def scan(keyword: str) -> tuple[list[PowerLinkResult], int]:
+    """
+    반환값:
+    - results: 타겟 도메인 PowerLinkResult 리스트
+    - total: 파워링크 전체 개수
+    """
 
     try:
         soup = fetch_page(keyword)
     except Exception as e:
         print(f"[ERROR][REQUESTS] {keyword} → {e}")
-        return results
+        return [], 0
 
-    items = soup.select("#power_link_body > ul > li")
-
-    if not items:
-        return results
-
+    items = soup.select("ul.lst_type > li.lst")
     total = len(items)
+
+    results: list[PowerLinkResult] = []
 
     for idx, li in enumerate(items, start=1):
         a = li.select_one("a.lnk_url")
@@ -64,4 +66,4 @@ def scan(keyword: str) -> list[PowerLinkResult]:
                 )
             )
 
-    return results
+    return results, total

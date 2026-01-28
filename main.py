@@ -18,12 +18,10 @@ def main():
         print("=" * 60)
         print(f"[{i}/{len(KEYWORDS)}] 키워드: {keyword}")
 
-        results = requests_fetcher.scan(keyword)
+        results, total = requests_fetcher.scan(keyword)
+        print(f"파워링크 총 {total}개") # 수가 다른경우는
 
         if results:
-            total = results[0].total
-            print(f"파워링크 총 {total}개")
-
             for r in results:
                 print(f"[REQUESTS] {r.rank}위 - {r.domain}")
         else:
