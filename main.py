@@ -6,32 +6,42 @@ main.py
 2. 결과 없을 때만 selenium 전환
 """
 
+import time
+import random
+
 from config import KEYWORDS
 from fetchers import requests_fetcher, selenium_fetcher
 
 
 def main():
-    for keyword in KEYWORDS:
+    for i, keyword in enumerate(KEYWORDS, start=1):
         print("=" * 60)
-        print(f"키워드: {keyword}")
+        print(f"[{i}/{len(KEYWORDS)}] 키워드: {keyword}")
 
-        # 1차: requests
         results = requests_fetcher.scan(keyword)
 
         if results:
-            for r in results:
-                print(f"[REQUESTS] {r.domain} / {r.rank}")
-            continue
+            total = results[0].total
+            print(f"파워링크 총 {total}개")
 
-        print("requests 결과 없음 → selenium 전환")
-
-        # 2차: selenium
-        results = selenium_fetcher.scan(keyword)
-        if results:
             for r in results:
-                print(f"[SELENIUM] {r.domain} / {r.rank}")
+                print(f"[REQUESTS] {r.rank}위 - {r.domain}")
         else:
-            print("최종 결과 없음")
+            print("타겟 도메인 노출 없음")
+
+        # 봇 패턴 방지 딜레이
+        sleep_sec = random.uniform(1.5, 3.5)
+        time.sleep(sleep_sec)
+
+        # print("requests 결과 없음 → selenium 전환")
+        #
+        # # 2차: selenium
+        # results = selenium_fetcher.scan(keyword)
+        # if results:
+        #     for r in results:
+        #         print(f"[SELENIUM] {r.domain} / {r.rank}")
+        # else:
+        #     print("최종 결과 없음")
 
 
 if __name__ == "__main__":

@@ -24,3 +24,6 @@ class PowerLinkResult:
 
     # 결과를 가져온 방식 (requests / selenium)
     source: str
+
+    # 파워링크가 총 몇개 인지
+    total: int

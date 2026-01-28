@@ -8,7 +8,7 @@ requests_fetcher.py
 import requests
 from bs4 import BeautifulSoup
 
-from config import HEADERS, TARGET_DOMAINS
+from config import TARGET_DOMAINS, get_random_headers
 from models import PowerLinkResult
 
 
@@ -22,8 +22,8 @@ def fetch_page(keyword: str) -> BeautifulSoup:
     response = requests.get(
         url,
         params=params,
-        headers=HEADERS,
-        timeout=5,
+        headers=get_random_headers(),
+        timeout=7,   # 크론 기준 살짝 여유
     )
     response.raise_for_status()
 
@@ -33,11 +33,18 @@ def fetch_page(keyword: str) -> BeautifulSoup:
 def scan(keyword: str) -> list[PowerLinkResult]:
     results: list[PowerLinkResult] = []
 
-    soup = fetch_page(keyword)
+    try:
+        soup = fetch_page(keyword)
+    except Exception as e:
+        print(f"[ERROR][REQUESTS] {keyword} → {e}")
+        return results
 
     items = soup.select("#power_link_body > ul > li")
+
     if not items:
         return results
+
+    total = len(items)
 
     for idx, li in enumerate(items, start=1):
         a = li.select_one("a.lnk_url")
@@ -52,6 +59,7 @@ def scan(keyword: str) -> list[PowerLinkResult]:
                     keyword=keyword,
                     domain=domain,
                     rank=idx,
+                    total=total,
                     source="requests",
                 )
             )
