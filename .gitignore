@@ -5,6 +5,9 @@ __pycache__/
 *.pyd
 *.so
 
+# config 파일 무시
+config.py
+
 # Virtual environment
 .venv/
 venv/
